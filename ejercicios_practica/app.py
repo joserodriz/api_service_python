@@ -54,14 +54,24 @@ def personas():
         # Alumno:
         # Implementar la captura de limit y offset de los argumentos
         # de la URL
+        # 
         # limit = ...
         # offset = ....
 
         # Debe verificar si el limit y offset son válidos cuando
         # no son especificados en la URL
 
+        limit_str = str(request.args.get('limit'))
+        offset_str = str(request.args.get('offset'))
+
         limit = 0
         offset = 0
+
+        if(limit_str is not None) and (limit_str.isdigit()):
+            limit = int(limit_str)
+
+        if(offset_str is not None) and (offset_str.isdigit()):
+            offset = int(offset_str)
 
         result = persona.report(limit=limit, offset=offset)
         return jsonify(result)
@@ -77,13 +87,21 @@ def registro():
             name = ""
             age = 0
             # Alumno:
-            # Obtener del HTTP POST JSON el nombre y los pulsos
+            # Obtener del HTTP POST JSON el nombre y la edad
             # name = ...
             # age = ...
 
             # Alumno: descomentar la linea persona.insert una vez implementado
             # lo anterior:
-            # persona.insert(name, int(age))
+
+            nombre = str(request.form.get('name')).lower()
+            edad = str(request.form.get('age'))
+
+            if(nombre is None or edad is None or edad.isdigit() is False):
+            
+                return Response(status=400)
+            
+            persona.insert(nombre, int(edad))
             return Response(status=200)
         except:
             return jsonify({'trace': traceback.format_exc()})
@@ -105,12 +123,13 @@ def comparativa():
         # todas las edades respectivas a los Ids que se encuentran en "x"
 
         # Descomentar luego de haber implementado su función en persona.py:
+        eje_x = 'ID'
+        eje_y = 'EDAD'
+        titulo = 'Grafico de edades'
+        x, y = persona.dashboard()
+        image_html = utils.graficar(x, y, eje_x, eje_y, titulo)
+        return Response(image_html.getvalue(), mimetype='image/png')
 
-        # x, y = persona.dashboard()
-        # image_html = utils.graficar(x, y)
-        # return Response(image_html.getvalue(), mimetype='image/png')
-
-        return "Alumno --> Realice la implementacion"
     except:
         return jsonify({'trace': traceback.format_exc()})
 
